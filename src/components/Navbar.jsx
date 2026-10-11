@@ -55,6 +55,11 @@ export function Navbar({
           </div>
 
           <div className="top-strip-right">
+            <button onClick={() => onToggleAdminView(true)} className="strip-pms-link" title="Abrir Sistema PMS">
+              <LayoutDashboard size={12} />
+              <span>Panel PMS</span>
+            </button>
+            <span className="strip-divider">|</span>
             <a href={`tel:${HOTEL_INFO.phonePrimary}`} className="strip-contact">
               Tel: {HOTEL_INFO.phonePrimary}
             </a>
@@ -105,6 +110,14 @@ export function Navbar({
 
           {/* Acciones: Reserva Directa */}
           <div className="nav-desktop-actions">
+            <button 
+              onClick={() => onToggleAdminView(true)} 
+              className="btn-pms-quick-access"
+              title="Abrir Sistema de Gestión Hotelera PMS"
+            >
+              <LayoutDashboard size={14} />
+              <span>Panel PMS</span>
+            </button>
             <button 
               onClick={() => onOpenBooking()} 
               className="btn-luxury-primary nav-reserve-cta"
@@ -299,6 +312,47 @@ export function Navbar({
 
         .nav-mobile-toggle {
           display: none;
+        }
+
+        
+        .btn-pms-quick-access {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.62rem 1.05rem;
+          font-size: 0.78rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          background: rgba(197, 160, 89, 0.14);
+          color: #8b6b23;
+          border: 1px solid rgba(197, 160, 89, 0.4);
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+        .btn-pms-quick-access:hover {
+          background: #c5a059;
+          color: #ffffff;
+          border-color: #c5a059;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(197, 160, 89, 0.25);
+        }
+        .strip-pms-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.72rem;
+          color: #c5a059;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+        .strip-pms-link:hover {
+          text-decoration: underline;
         }
 
         /* Mobile Menu */

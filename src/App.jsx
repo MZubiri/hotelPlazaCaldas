@@ -43,14 +43,31 @@ export function App() {
   const [currentPage, setCurrentPage] = useState('home');
 
   // Alternancia entre Web de Huéspedes y PMS de Recepción
-  const [isAdminView, setIsAdminView] = useState(false);
+  const [isAdminView, setIsAdminView] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const s = window.location.search.toLowerCase();
+      const adminKeywords = ['pms', 'pms-login', 'login', 'dashboard', 'admin', 'panel'];
+      return adminKeywords.some(k => path === `/${k}` || path.startsWith(`/${k}/`) || hash.includes(k) || s.includes(k));
+    }
+    return false;
+  });
   const [currentPmsTab, setCurrentPmsTab] = useState('dashboard');
 
   // Autenticación de Colaboradores y Control de Permisos por Rol
   const [currentUser, setCurrentUser] = useState(() => {
     if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
       const s = window.location.search.toLowerCase();
-      if (s.includes('autologin') || s.includes('user=admin')) return INITIAL_STAFF_USERS[0];
+      // Si entra a login explícito (/login o /pms-login), mostrar formulario de login
+      if (path.includes('login') || hash.includes('login')) return null;
+      // Para /panel, /dashboard, /admin, /pms, pre-autenticar inmediatamente como Administrador General
+      const directKeywords = ['panel', 'dashboard', 'admin', 'pms'];
+      if (directKeywords.some(k => path === `/${k}` || path.startsWith(`/${k}/`) || hash.includes(k) || s.includes(k))) {
+        return INITIAL_STAFF_USERS[0];
+      }
     }
     return null;
   });
@@ -85,8 +102,8 @@ export function App() {
 
       if (matchesPath || matchesHash || matchesSearch) {
         setIsAdminView(true);
-        if (search.includes('autologin') || search.includes('user=admin')) {
-          setCurrentUser(INITIAL_STAFF_USERS[0]);
+        if (!path.includes('login') && !hash.includes('login')) {
+          setCurrentUser(prev => prev || INITIAL_STAFF_USERS[0]);
         }
         const tabMatch = search.match(/tab=([a-z0-9_-]+)/i);
         if (tabMatch && tabMatch[1]) {
@@ -108,12 +125,24 @@ export function App() {
     };
   }, []);
 
+  // Abrir panel administrativo PMS directamente
+  const handleOpenAdminView = (tab = 'dashboard') => {
+    setIsAdminView(true);
+    setCurrentPmsTab(tab);
+    setCurrentUser(prev => prev || INITIAL_STAFF_USERS[0]);
+    if (window.location.pathname !== '/panel') {
+      window.history.pushState({}, '', '/panel');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Salir del modo administrativo y restaurar URL
   const handleExitAdmin = () => {
     setIsAdminView(false);
     if (window.location.pathname !== '/' || window.location.hash || window.location.search) {
       window.history.pushState({}, '', '/');
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Navegación con scroll al tope
@@ -333,7 +362,7 @@ export function App() {
           onToggleLanguage={toggleLanguage}
           onOpenBooking={() => handleOpenBooking()}
           isAdminView={isAdminView}
-          onToggleAdminView={setIsAdminView}
+          onToggleAdminView={handleOpenAdminView}
         />
       )}
 
